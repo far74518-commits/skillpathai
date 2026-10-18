@@ -1,0 +1,26 @@
+services:
+  # Node.js Express Backend Service
+  - type: web
+    name: skillpath-ai-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        value: https://skillpathai.vercel.app
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: COOKIE_EXPIRES_DAYS
+        value: 7
+      - key: MONGODB_URI
+        sync: false

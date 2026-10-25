@@ -392,34 +392,6 @@ export default function GoogleAccountChooserModal({ isOpen, onClose, onSelectAcc
           </div>
         )}
 
-        {/* Google Security & Privacy Disclaimer Footer */}
-        <div className="google-auth-footer" style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              fontSize: '0.76rem',
-              color: 'var(--text-dim)',
-              marginBottom: '0.35rem'
-            }}
-          >
-            <Shield size={13} style={{ color: 'var(--emerald-400)' }} />
-            <span>Secure Google OAuth 2.0 Single Sign-On</span>
-          </div>
-          <p
-            style={{
-              fontSize: '0.73rem',
-              color: 'var(--text-dim)',
-              textAlign: 'center',
-              lineHeight: 1.45,
-              margin: 0
-            }}
-          >
-            To continue, Google will share your email address and basic profile with SkillPath AI.
-          </p>
-        </div>
       </div>
     </div>
   );

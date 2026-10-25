@@ -129,10 +129,6 @@ export default function SkillsPage() {
               </div>
             ))}
           </div>
-
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginTop: '0.75rem', textAlign: 'center' }}>
-            Tip: Prioritize these gaps during your weekly roadmap study hours
-          </div>
         </div>
       </div>
 

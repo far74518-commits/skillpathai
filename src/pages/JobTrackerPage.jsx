@@ -748,9 +748,6 @@ export default function JobTrackerPage() {
                 <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)' }}>
                   Jobs scored against your active profile skills ({skills.length} skills logged) and target career track.
                 </div>
-                <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontStyle: 'italic', marginTop: 3 }}>
-                  * SkillPath AI match scores evaluate technical qualification alignment and do not guarantee interview selection or job placement.
-                </div>
               </div>
             </div>
 
@@ -1887,10 +1884,6 @@ export default function JobTrackerPage() {
                   <span style={{ color: 'var(--text-muted)' }}>{selectedJobDetail.match?.matchedSkills?.join(', ') || 'General CS foundations'}</span>
                 </div>
               </div>
-
-              <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontStyle: 'italic', marginTop: '0.65rem', borderTop: '1px dashed var(--border-subtle)', paddingTop: '0.5rem' }}>
-                * Note: SkillPath AI match scores evaluate technical qualification alignment and do not guarantee interview selection or job placement.
-              </div>
             </div>
 
             {/* Quick Metadata Pill row */}
@@ -2093,9 +2086,6 @@ export default function JobTrackerPage() {
                     value={manualJobForm.canonicalJobUrl}
                     onChange={(e) => setManualJobForm({ ...manualJobForm, canonicalJobUrl: e.target.value })}
                   />
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: 3 }}>
-                    Direct official careers URL where students will apply. Never bypass authentication or bot protections.
-                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { SAMPLE_CV, EMPTY_CV } from '../data/sampleCV';
 import ModernTechTemplate from '../components/cv/ModernTechTemplate';
@@ -15,6 +15,8 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Save,
   Check,
   Download,
@@ -430,15 +432,48 @@ export default function CVBuilderPage() {
   };
 
   const tabs = [
-    { id: 'personal', label: '1. Personal Info' },
-    { id: 'summary', label: '2. Summary' },
-    { id: 'education', label: '3. Education' },
-    { id: 'experience', label: '4. Experience' },
-    { id: 'projects', label: '5. Projects' },
-    { id: 'skills', label: '6. Skills' },
-    { id: 'certs', label: '7. Certifications' },
-    { id: 'languages', label: '8. Languages' }
+    { id: 'personal', label: '1. Personal Info', shortName: 'Personal Info', fullName: 'Personal & Contact Information' },
+    { id: 'summary', label: '2. Summary', shortName: 'Summary', fullName: 'Professional Summary' },
+    { id: 'education', label: '3. Education', shortName: 'Education', fullName: 'Education & Academics' },
+    { id: 'experience', label: '4. Experience', shortName: 'Experience', fullName: 'Work Experience & Internships' },
+    { id: 'projects', label: '5. Projects', shortName: 'Projects', fullName: 'Projects & Portfolio' },
+    { id: 'skills', label: '6. Skills', shortName: 'Skills', fullName: 'Technical Skills' },
+    { id: 'certs', label: '7. Certifications', shortName: 'Certifications', fullName: 'Certificates & Credentials' },
+    { id: 'languages', label: '8. Languages', shortName: 'Languages', fullName: 'Languages & Fluency' }
   ];
+
+  const tabsContainerRef = useRef(null);
+  const currentTabIndex = Math.max(0, tabs.findIndex(t => t.id === activeTab));
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+    if (tabsContainerRef.current) {
+      const container = tabsContainerRef.current;
+      const btn = container.querySelector(`[data-tab-id="${tabId}"]`);
+      if (btn) {
+        const targetScroll = btn.offsetLeft - (container.clientWidth / 2) + (btn.clientWidth / 2);
+        container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleScrollTabs = (direction) => {
+    if (tabsContainerRef.current) {
+      tabsContainerRef.current.scrollBy({ left: direction * 160, behavior: 'smooth' });
+    }
+  };
+
+  const goToPrevTab = () => {
+    if (currentTabIndex > 0) {
+      handleTabClick(tabs[currentTabIndex - 1].id);
+    }
+  };
+
+  const goToNextTab = () => {
+    if (currentTabIndex < tabs.length - 1) {
+      handleTabClick(tabs[currentTabIndex + 1].id);
+    }
+  };
 
   return (
     <div className="animate-fade">
@@ -550,18 +585,61 @@ export default function CVBuilderPage() {
       <div className="cv-builder-container">
         {/* Left Side: Comprehensive Editor Panel */}
         <div className={`cv-editor-panel no-print ${mobileView === 'preview' ? 'mobile-hidden' : ''}`}>
-          {/* Section Navigation Tabs */}
-          <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setActiveTab(t.id)}
-                className={`tag-btn ${activeTab === t.id ? 'selected' : ''}`}
-                style={{ fontSize: '0.82rem', padding: '0.4rem 0.8rem', whiteSpace: 'nowrap' }}
-              >
-                {t.label}
-              </button>
-            ))}
+          {/* Section Quick Switcher Bar (Mobile & Desktop) */}
+          <div className="cv-section-stepper-header">
+            <div className="cv-stepper-title">
+              <span className="cv-stepper-badge">{currentTabIndex + 1} / {tabs.length}</span>
+              <span className="cv-stepper-name">{tabs[currentTabIndex]?.fullName || tabs[currentTabIndex]?.label}</span>
+            </div>
+            <select
+              className="cv-stepper-dropdown"
+              value={activeTab}
+              onChange={(e) => handleTabClick(e.target.value)}
+              aria-label="Switch CV Section"
+            >
+              {tabs.map((t, idx) => (
+                <option key={t.id} value={t.id}>
+                  {idx + 1}. {t.shortName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Section Navigation Tabs with Left & Right Arrows */}
+          <div className="cv-tabs-scroll-container">
+            <button
+              type="button"
+              className="cv-tabs-arrow-btn"
+              onClick={() => handleScrollTabs(-1)}
+              title="Previous tabs"
+              aria-label="Scroll tabs left"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <div ref={tabsContainerRef} className="cv-tabs-track">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  data-tab-id={t.id}
+                  onClick={() => handleTabClick(t.id)}
+                  className={`tag-btn ${activeTab === t.id ? 'selected' : ''}`}
+                  style={{ fontSize: '0.82rem', padding: '0.42rem 0.82rem', whiteSpace: 'nowrap', flexShrink: 0 }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="cv-tabs-arrow-btn"
+              onClick={() => handleScrollTabs(1)}
+              title="Next tabs"
+              aria-label="Scroll tabs right"
+            >
+              <ChevronRight size={16} />
+            </button>
           </div>
 
           {/* TAB 1: Personal Info */}
@@ -1364,6 +1442,52 @@ export default function CVBuilderPage() {
               )}
             </div>
           )}
+
+          {/* Section Step Navigation Footer (Back / Next) */}
+          <div className="cv-section-nav-footer">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={goToPrevTab}
+              disabled={currentTabIndex === 0}
+              style={{
+                opacity: currentTabIndex === 0 ? 0.35 : 1,
+                cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer'
+              }}
+            >
+              ‹ Back: {currentTabIndex > 0 ? tabs[currentTabIndex - 1].shortName : 'Start'}
+            </button>
+
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              Step {currentTabIndex + 1} of {tabs.length}
+            </span>
+
+            {currentTabIndex < tabs.length - 1 ? (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={goToNextTab}
+                style={{
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  fontWeight: 600
+                }}
+              >
+                Next: {tabs[currentTabIndex + 1].shortName} ›
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => setMobileView('preview')}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  fontWeight: 600
+                }}
+              >
+                Preview Finished CV ✨
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Right Side: Live Real-Time CV Preview & Download */}

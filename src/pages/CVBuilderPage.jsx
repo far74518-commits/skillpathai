@@ -23,7 +23,9 @@ import {
   Award,
   Globe2,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Edit3,
+  Eye
 } from 'lucide-react';
 import Button from '../components/common/Button';
 
@@ -36,6 +38,7 @@ export default function CVBuilderPage() {
   const [isAiReviewOpen, setIsAiReviewOpen] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [previewZoom, setPreviewZoom] = useState(1); // 0.85 | 1 | 1.15
+  const [mobileView, setMobileView] = useState('editor'); // 'editor' | 'preview'
 
   // Helper to update deeply nested fields
   const handlePersonalInfoChange = (field, value) => {
@@ -523,10 +526,30 @@ export default function CVBuilderPage() {
         </div>
       </div>
 
+      {/* Mobile Mode Switcher (Visible on mobile screens <= 900px) */}
+      <div className="cv-mobile-view-toggle">
+        <button
+          type="button"
+          className={`cv-mobile-toggle-btn ${mobileView === 'editor' ? 'active' : ''}`}
+          onClick={() => setMobileView('editor')}
+        >
+          <Edit3 size={15} />
+          <span>Editor Sections</span>
+        </button>
+        <button
+          type="button"
+          className={`cv-mobile-toggle-btn ${mobileView === 'preview' ? 'active' : ''}`}
+          onClick={() => setMobileView('preview')}
+        >
+          <Eye size={15} />
+          <span>Live CV Document</span>
+        </button>
+      </div>
+
       {/* CV Builder Split View */}
       <div className="cv-builder-container">
         {/* Left Side: Comprehensive Editor Panel */}
-        <div className="cv-editor-panel no-print">
+        <div className={`cv-editor-panel no-print ${mobileView === 'preview' ? 'mobile-hidden' : ''}`}>
           {/* Section Navigation Tabs */}
           <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
             {tabs.map((t) => (
@@ -1344,7 +1367,7 @@ export default function CVBuilderPage() {
         </div>
 
         {/* Right Side: Live Real-Time CV Preview & Download */}
-        <div className="cv-preview-wrapper">
+        <div className={`cv-preview-wrapper ${mobileView === 'editor' ? 'mobile-hidden' : ''}`}>
           {/* Template & Export Toolbar */}
           <div className="cv-preview-toolbar no-print">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>

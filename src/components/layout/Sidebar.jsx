@@ -86,7 +86,7 @@ export default function Sidebar() {
             {(!collapsed || isMobileDrawerOpen) && (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                  SkillSync
+                  SkillPath AI
                 </span>
                 <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#8b5cf6', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 2 }}>
                   AI CAREER OS

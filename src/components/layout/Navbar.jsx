@@ -69,7 +69,7 @@ export default function Navbar() {
             <Check size={16} strokeWidth={3} />
           </div>
           <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff' }}>
-            SkillSync
+            SkillPath AI
           </span>
         </div>
       </div>

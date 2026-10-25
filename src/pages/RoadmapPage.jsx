@@ -588,7 +588,7 @@ export default function RoadmapPage() {
       <div style={{ marginBottom: '2rem' }}>
         <h1
           style={{
-            fontSize: '2.5rem',
+            fontSize: 'clamp(1.65rem, 5vw, 2.5rem)',
             fontWeight: 800,
             letterSpacing: '-0.02em',
             color: '#ffffff',

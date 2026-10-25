@@ -584,7 +584,7 @@ export default function SettingsPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.25rem' }}>
             <h1 className="page-title">Settings & Preferences</h1>
             <span className="badge badge-indigo" style={{ fontSize: '0.72rem' }}>
-              SkillSync v2.4
+              SkillPath AI v2.4
             </span>
           </div>
           <p className="page-subtitle">

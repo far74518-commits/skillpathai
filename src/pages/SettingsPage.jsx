@@ -43,11 +43,7 @@ import {
   Layers,
   MapPin,
   Briefcase,
-  LogOut,
-  Zap,
-  RefreshCw,
-  FileCheck,
-  Bot
+  LogOut
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -1893,32 +1889,46 @@ export default function SettingsPage() {
           )}
 
           {/* ========================================================
-              TAB 7: AI & GOOGLE GEMINI SETTINGS
+              TAB 7: AI & GOOGLE GEMINI INTEGRATION
               ======================================================== */}
           {activeTab === 'ai' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div className="animate-fade">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
-                    Google Gemini & Generative AI Engine
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Sparkles size={22} color="#818cf8" />
+                    <span>AI Engine & Google Gemini Settings</span>
                   </h3>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                    Configure your Google Gemini API key to activate real-time personalized career roadmaps, ATS resume reviews, and mentor intelligence.
+                    Configure generative AI intelligence for personalized student career paths, ATS resume audits, and live mentorship.
                   </p>
                 </div>
 
-                <Button
-                  variant="primary"
-                  icon={Save}
-                  onClick={handleSaveAiConfig}
-                  loading={isAiSaving}
-                  style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                    fontWeight: 700
-                  }}
-                >
-                  Save AI Settings
-                </Button>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    icon={Activity}
+                    loading={isAiTesting}
+                    onClick={handleTestAiConnection}
+                    style={{ fontSize: '0.82rem' }}
+                  >
+                    Test Live Connection
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    icon={Save}
+                    loading={isAiSaving}
+                    onClick={handleSaveAiConfig}
+                    style={{
+                      background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                      boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
+                    }}
+                  >
+                    Save AI Settings
+                  </Button>
+                </div>
               </div>
 
               {/* Status Banner */}
@@ -1926,95 +1936,107 @@ export default function SettingsPage() {
                 style={{
                   background: aiStatus?.isLive
                     ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.08) 100%)'
-                    : 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
-                  border: `1px solid ${aiStatus?.isLive ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.25)'}`,
+                    : 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%)',
+                  border: `1px solid ${aiStatus?.isLive ? 'rgba(16, 185, 129, 0.35)' : 'rgba(99, 102, 241, 0.35)'}`,
                   borderRadius: 'var(--radius-lg)',
-                  padding: '1.25rem',
+                  padding: '1.25rem 1.5rem',
+                  marginBottom: '1.5rem',
                   display: 'flex',
-                  alignItems: 'center',
                   justifyContent: 'space-between',
+                  alignItems: 'center',
                   flexWrap: 'wrap',
                   gap: '1rem'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div
                     style={{
                       width: 44,
                       height: 44,
                       borderRadius: 'var(--radius-md)',
-                      background: aiStatus?.isLive
-                        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                        : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      background: aiStatus?.isLive ? 'rgba(16, 185, 129, 0.2)' : 'rgba(99, 102, 241, 0.2)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#ffffff',
-                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)'
+                      color: aiStatus?.isLive ? '#10b981' : '#818cf8',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}
                   >
-                    <Sparkles size={22} />
+                    <Layers size={24} />
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontWeight: 700, fontSize: '1rem', color: '#ffffff' }}>
-                        {aiStatus?.providerName || 'SkillPath Intelligent Deterministic Engine'}
-                      </span>
-                      <span className={`badge ${aiStatus?.isLive ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '0.72rem' }}>
-                        {aiStatus?.isLive ? 'Live Generative LLM' : 'Offline Mode (Active)'}
-                      </span>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
+                      Active Intelligence Engine
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                      Model: <code style={{ color: '#38bdf8' }}>{aiStatus?.model || 'Deterministic Semantic Rule Engine'}</code>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>
+                      {aiStatus?.providerName || 'SkillPath Intelligent Engine'}
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: aiStatus?.isLive ? '#34d399' : '#a5b4fc', marginTop: 2 }}>
+                      Model: {aiStatus?.model || 'Deterministic Semantic Rule Engine (Offline-Ready)'}
                     </div>
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={isAiTesting ? RefreshCw : Zap}
-                  onClick={handleTestAiConnection}
-                  disabled={isAiTesting}
-                  style={{ fontSize: '0.82rem' }}
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    padding: '0.4rem 0.9rem',
+                    borderRadius: 'var(--radius-full)',
+                    background: aiStatus?.isLive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                    color: aiStatus?.isLive ? '#10b981' : '#818cf8',
+                    border: `1px solid ${aiStatus?.isLive ? 'rgba(16, 185, 129, 0.4)' : 'rgba(99, 102, 241, 0.4)'}`
+                  }}
                 >
-                  {isAiTesting ? 'Testing Connection...' : 'Test Connection'}
-                </Button>
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: aiStatus?.isLive ? '#10b981' : '#818cf8',
+                      boxShadow: `0 0 8px ${aiStatus?.isLive ? '#10b981' : '#818cf8'}`
+                    }}
+                  />
+                  {aiStatus?.isLive ? 'Live Generative LLM' : 'Offline Intelligent Fallback Active'}
+                </span>
               </div>
 
               {testResult && (
                 <div
                   style={{
-                    background: testResult.success ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
+                    background: testResult.success ? 'rgba(16, 185, 129, 0.08)' : 'rgba(244, 63, 94, 0.08)',
                     border: `1px solid ${testResult.success ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)'}`,
                     borderRadius: 'var(--radius-md)',
-                    padding: '0.85rem 1rem',
-                    fontSize: '0.85rem',
-                    color: testResult.success ? '#34d399' : '#fb7185',
+                    padding: '0.85rem 1.15rem',
+                    marginBottom: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem'
+                    gap: '0.65rem',
+                    fontSize: '0.88rem',
+                    color: testResult.success ? '#10b981' : '#f43f5e'
                   }}
                 >
-                  {testResult.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  {testResult.success ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                   <span>{testResult.message}</span>
                 </div>
               )}
 
-              {/* API Key Form Card */}
-              <div className="settings-card">
-                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.4rem' }}>
-                  Provider & API Credentials
+              {/* Settings Configuration Card */}
+              <div className="settings-card" style={{ marginBottom: '1.25rem' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+                  Provider & Model Selection
                 </h4>
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-                  SkillPath AI works out of the box with zero external configuration using its built-in rule engine. Adding your free Google Gemini API key unlocks live generative responses.
+                  Google Gemini offers ultra-fast response times and high token limits ideal for real-time student mentorship.
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
-                  {/* Provider Select */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.25rem' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                      Primary AI Provider
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.45rem' }}>
+                      AI Provider
                     </label>
                     <select
                       value={aiForm.provider}
@@ -2025,19 +2047,18 @@ export default function SettingsPage() {
                         border: '1px solid var(--border-subtle)',
                         borderRadius: 'var(--radius-md)',
                         padding: '0.75rem 1rem',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.9rem'
                       }}
                     >
-                      <option value="gemini">Google Gemini AI (Recommended — Fast & Free Tier)</option>
-                      <option value="openai">OpenAI (GPT-4o-mini)</option>
+                      <option value="gemini">Google Gemini AI (Recommended)</option>
+                      <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
                     </select>
                   </div>
 
-                  {/* Model Select */}
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
-                      Model Tier
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.45rem' }}>
+                      Model Engine
                     </label>
                     <select
                       value={aiForm.model}
@@ -2048,30 +2069,30 @@ export default function SettingsPage() {
                         border: '1px solid var(--border-subtle)',
                         borderRadius: 'var(--radius-md)',
                         padding: '0.75rem 1rem',
-                        color: '#ffffff',
+                        color: 'var(--text-primary)',
                         fontSize: '0.9rem'
                       }}
                     >
                       {aiForm.provider === 'gemini' ? (
                         <>
-                          <option value="gemini-1.5-flash">gemini-1.5-flash (Ultra fast, lightweight, recommended)</option>
-                          <option value="gemini-2.0-flash">gemini-2.0-flash (Next-gen frontier reasoning)</option>
-                          <option value="gemini-1.5-pro">gemini-1.5-pro (Deep complex career analysis)</option>
+                          <option value="gemini-1.5-flash">gemini-1.5-flash (Fast, Generative, Multimodal)</option>
+                          <option value="gemini-2.0-flash">gemini-2.0-flash (Next-Gen High Performance)</option>
+                          <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Reasoning & Architecture)</option>
                         </>
                       ) : (
                         <>
-                          <option value="gpt-4o-mini">gpt-4o-mini (Cost-effective fast reasoning)</option>
-                          <option value="gpt-4o">gpt-4o (Full flagship model)</option>
+                          <option value="gpt-4o-mini">gpt-4o-mini (Fast & Efficient)</option>
+                          <option value="gpt-4o">gpt-4o (Flagship Model)</option>
                         </>
                       )}
                     </select>
                   </div>
                 </div>
 
-                {/* API Key Input with Visibility Toggle */}
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                {/* API Key Input */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem' }}>
+                    <label style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                       {aiForm.provider === 'gemini' ? 'Google Gemini API Key' : 'OpenAI API Key'}
                     </label>
                     {aiForm.provider === 'gemini' && (
@@ -2079,9 +2100,9 @@ export default function SettingsPage() {
                         href="https://aistudio.google.com/app/apikey"
                         target="_blank"
                         rel="noreferrer"
-                        style={{ fontSize: '0.78rem', color: '#38bdf8', textDecoration: 'none' }}
+                        style={{ fontSize: '0.78rem', color: '#38bdf8', textDecoration: 'none', fontWeight: 600 }}
                       >
-                        Get a free key from Google AI Studio ↗
+                        Get Free Gemini Key from Google AI Studio →
                       </a>
                     )}
                   </div>
@@ -2091,14 +2112,14 @@ export default function SettingsPage() {
                       type={showApiKey ? 'text' : 'password'}
                       value={aiForm.apiKey}
                       onChange={(e) => setAiForm({ ...aiForm, apiKey: e.target.value })}
-                      placeholder={aiForm.provider === 'gemini' ? 'AIzaSy...' : 'sk-...'}
+                      placeholder={aiForm.provider === 'gemini' ? 'AIzaSy...' : 'sk-proj-...'}
                       style={{
                         width: '100%',
                         background: 'var(--bg-app)',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: 'var(--radius-md)',
-                        padding: '0.75rem 3rem 0.75rem 1rem',
-                        color: '#ffffff',
+                        padding: '0.75rem 2.75rem 0.75rem 1rem',
+                        color: 'var(--text-primary)',
                         fontSize: '0.9rem',
                         fontFamily: 'monospace'
                       }}
@@ -2108,104 +2129,54 @@ export default function SettingsPage() {
                       onClick={() => setShowApiKey(!showApiKey)}
                       style={{
                         position: 'absolute',
-                        right: '0.85rem',
+                        right: '0.75rem',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         background: 'none',
                         border: 'none',
                         color: 'var(--text-muted)',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        padding: 0
                       }}
                     >
-                      {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
-                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '0.4rem' }}>
-                    Your API key is kept secure and never exposed to public clients. It is handled by the server proxy.
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: '0.4rem' }}>
+                    Your key is securely loaded in runtime memory or server/.env and never exposed in public client bundles.
                   </p>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                  <Button
-                    variant="outline"
-                    icon={Zap}
-                    onClick={handleTestAiConnection}
-                    disabled={isAiTesting}
-                  >
-                    Test Connection
-                  </Button>
-                  <Button
-                    variant="primary"
-                    icon={Save}
-                    onClick={handleSaveAiConfig}
-                    loading={isAiSaving}
-                    style={{
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                      fontWeight: 700
-                    }}
-                  >
-                    Save Configuration
-                  </Button>
                 </div>
               </div>
 
-              {/* Supported Features Grid */}
+              {/* Supported AI Capabilities Info Box */}
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                  gap: '1rem'
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.25rem'
                 }}
               >
-                <div
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem'
-                  }}
-                >
-                  <div style={{ color: '#818cf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Sparkles size={16} />
-                    <span>Smart Career Roadmaps</span>
-                  </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Generates 3-stage actionable milestone roadmaps with estimated hours and checkpoints.
-                  </p>
+                <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#ffffff', marginBottom: '0.65rem' }}>
+                  SkillPath AI Capabilities Enabled with Google Gemini:
                 </div>
-
-                <div
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem'
-                  }}
-                >
-                  <div style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <FileCheck size={16} />
-                    <span>ATS Resume Review</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <CheckCircle2 size={15} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span><strong>ATS Resume Review:</strong> Scans CVs, computes compatibility scores, and suggests high-impact rewrites.</span>
                   </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Analyzes CV data against ATS scrapers, identifies missing keywords, and rewrites bullet points.
-                  </p>
-                </div>
-
-                <div
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1rem'
-                  }}
-                >
-                  <div style={{ color: '#34d399', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <Bot size={16} />
-                    <span>Career Mentor Chat</span>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <CheckCircle2 size={15} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span><strong>Custom Roadmap Generation:</strong> Creates week-by-week stages for any custom tech stack or career goal.</span>
                   </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
-                    Tailored advice for tech interviews at Systems Limited, Contour, 10Pearls, and global remote roles.
-                  </p>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <CheckCircle2 size={15} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span><strong>Intelligent Career Guidance:</strong> Calculates exact weekly study hours based on student's missing skills.</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    <CheckCircle2 size={15} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <span><strong>Offline Resiliency:</strong> Zero downtime fallback to built-in deterministic rules if API keys are absent.</span>
+                  </div>
                 </div>
               </div>
             </div>

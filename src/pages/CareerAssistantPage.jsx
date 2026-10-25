@@ -5,7 +5,7 @@ import { AIService } from '../services/aiService';
 import AssessmentForm from '../components/careers/AssessmentForm';
 import CareerCard from '../components/careers/CareerCard';
 import AICareerMatchingSection from '../components/jobs/AICareerMatchingSection';
-import { Sparkles, Target, AlertCircle, Bot, CheckCircle2, ShieldCheck, RefreshCw, Trophy } from 'lucide-react';
+import { Sparkles, Target, AlertCircle, Bot, CheckCircle2, ShieldCheck, RefreshCw, Trophy, Send, MessageSquare, Zap } from 'lucide-react';
 import Button from '../components/common/Button';
 
 export default function CareerAssistantPage() {
@@ -26,6 +26,9 @@ export default function CareerAssistantPage() {
   const [aiAdvice, setAiAdvice] = useState(null);
   const [loadingAi, setLoadingAi] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [chatQuestion, setChatQuestion] = useState('');
+  const [chatAnswer, setChatAnswer] = useState(null);
+  const [isAsking, setIsAsking] = useState(false);
 
   // Live dynamic update whenever skills, degree, or stage change
   const handleFormChange = (formData) => {
@@ -71,6 +74,37 @@ export default function CareerAssistantPage() {
       });
     } finally {
       setLoadingAi(false);
+    }
+  };
+
+  const handleAskCareerQuestion = async (customQ) => {
+    const q = customQ || chatQuestion;
+    if (!q || !q.trim()) return;
+
+    setIsAsking(true);
+    try {
+      const res = await AIService.askCareerAssistant(
+        q.trim(),
+        {
+          career: topCareer?.title || 'Software Engineer',
+          skills: (skills || []).map(s => s.name || s)
+        },
+        topCareer?.title || 'Software Engineer'
+      );
+      setChatAnswer(res);
+      addToast({
+        type: 'success',
+        title: 'Career Mentor Responded! 💡',
+        message: 'Insight generated with AI intelligence.'
+      });
+    } catch (err) {
+      addToast({
+        type: 'error',
+        title: 'Query Failed',
+        message: err.message || 'Could not reach career mentor.'
+      });
+    } finally {
+      setIsAsking(false);
     }
   };
 
@@ -212,6 +246,128 @@ export default function CareerAssistantPage() {
             ) : (
               <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
                 Click "Get AI Strategy" to generate tailored weekly schedules and learning priority advice for your top career match.
+              </div>
+            )}
+          </div>
+
+          {/* #3 Ask AI Career Mentor Interactive Card */}
+          <div
+            className="card"
+            style={{
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(99, 102, 241, 0.06) 100%)',
+              border: '1px solid rgba(56, 189, 248, 0.25)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.85rem' }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 'var(--radius-md)',
+                  background: 'linear-gradient(135deg, #38bdf8 0%, #6366f1 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  boxShadow: '0 2px 10px rgba(56, 189, 248, 0.3)'
+                }}
+              >
+                <Bot size={18} />
+              </div>
+              <div>
+                <h3 className="card-title" style={{ fontSize: '1rem', color: '#ffffff' }}>
+                  Ask AI Career Mentor
+                </h3>
+                <p className="card-subtitle" style={{ fontSize: '0.78rem' }}>
+                  Ask any question regarding interviews, company expectations, or skill switches
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Pills */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '0.85rem' }}>
+              {[
+                'What do interviewers ask fresh graduates at Systems Ltd?',
+                'Top 3 portfolio projects recruiters actually look at',
+                'How to transition into AI & ML engineering in Pakistan?'
+              ].map((pill, pIdx) => (
+                <button
+                  key={pIdx}
+                  type="button"
+                  onClick={() => {
+                    setChatQuestion(pill);
+                    handleAskCareerQuestion(pill);
+                  }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: 'var(--text-secondary)',
+                    borderRadius: 'var(--radius-full)',
+                    padding: '0.25rem 0.65rem',
+                    fontSize: '0.74rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  💡 {pill}
+                </button>
+              ))}
+            </div>
+
+            {/* Chat Input */}
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.85rem' }}>
+              <input
+                type="text"
+                value={chatQuestion}
+                onChange={(e) => setChatQuestion(e.target.value)}
+                placeholder="Ask about tech salaries, interview questions, or study strategies..."
+                onKeyDown={(e) => e.key === 'Enter' && handleAskCareerQuestion()}
+                style={{
+                  flex: 1,
+                  background: 'var(--bg-app)',
+                  border: '1px solid var(--border-subtle)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '0.65rem 0.95rem',
+                  color: '#ffffff',
+                  fontSize: '0.85rem'
+                }}
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                icon={Send}
+                loading={isAsking}
+                onClick={() => handleAskCareerQuestion()}
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #6366f1 100%)',
+                  padding: '0.65rem 1rem'
+                }}
+              >
+                Ask
+              </Button>
+            </div>
+
+            {/* Chat Response Display */}
+            {chatAnswer && (
+              <div
+                style={{
+                  background: 'var(--bg-app)',
+                  border: '1px solid rgba(56, 189, 248, 0.2)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1rem',
+                  fontSize: '0.86rem',
+                  color: 'var(--text-primary)',
+                  lineHeight: 1.6
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>
+                    {chatAnswer.source}
+                  </span>
+                </div>
+                <div style={{ whiteSpace: 'pre-line' }}>
+                  {chatAnswer.answer}
+                </div>
               </div>
             )}
           </div>

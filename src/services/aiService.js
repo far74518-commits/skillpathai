@@ -1,54 +1,33 @@
-/**
- * SkillPath AI - AI Integration Service
- * Pre-configured for client-side rule evaluation with pluggable backend LLM endpoint.
- * Never stores or exposes secrets in client-side code.
- */
-
-const BACKEND_AI_URL = import.meta.env.VITE_AI_BACKEND_URL || null;
+import { aiApi } from './api';
 
 export const AIService = {
-  // Check if live AI backend is configured
-  isLiveBackendAvailable() {
-    return Boolean(BACKEND_AI_URL);
+  async getStatus() {
+    try {
+      const res = await aiApi.getStatus();
+      return res.data;
+    } catch (e) {
+      return {
+        activeProvider: 'rule-engine',
+        providerName: 'SkillPath Intelligent Engine (Offline Mode)',
+        model: 'Deterministic Semantic Engine',
+        isLive: false,
+      };
+    }
   },
 
-  /**
-   * Request deep career guidance analysis
-   * Falls back to intelligent client-side synthesis if backend is offline/unconfigured
-   */
   async generateCareerAdvice(assessmentProfile) {
-    if (this.isLiveBackendAvailable()) {
-      try {
-        const response = await fetch(`${BACKEND_AI_URL}/api/career-advice`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(assessmentProfile)
-        });
-
-        if (!response.ok) {
-          throw new Error(`AI service responded with HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        return {
-          source: 'Live AI Service',
-          advice: data.advice,
-          suggestedFocus: data.suggestedFocus
-        };
-      } catch (err) {
-        console.warn('Live AI Backend request failed, falling back to local intelligence:', err.message);
-        // Fall through to local simulation
+    try {
+      const res = await aiApi.getGuidance(assessmentProfile);
+      if (res && res.data) {
+        return res.data;
       }
+    } catch (err) {
+      console.warn('[AIService] Backend AI guidance request failed, using local intelligence:', err.message);
     }
 
-    // High quality client-side synthesized intelligence
-    await new Promise(res => setTimeout(res, 900)); // simulated realistic thinking latency
-
-    const { targetRole = 'Software Engineer', weeklyHours = 15, missingSkills = [] } = assessmentProfile;
-
-    const keyGaps = (missingSkills || []).slice(0, 3).map(s => s.name || s).join(', ') || 'Framework architecture and automated testing';
+    // High quality client-side fallback
+    const { targetRole = 'Software Engineer', weeklyHours = 15, missingSkills = [] } = assessmentProfile || {};
+    const keyGaps = (missingSkills || []).slice(0, 3).map((s) => s.name || s).join(', ') || 'Framework architecture and automated testing';
 
     return {
       source: 'SkillPath Intelligent Engine (Demo / Offline Mode)',
@@ -56,14 +35,58 @@ export const AIService = {
       keyStrengths: [
         'Clear learning commitment with realistic weekly allocation',
         'Strong baseline logic and analytical foundations',
-        'Direct alignment with current tech market demand'
+        'Direct alignment with current tech market demand',
       ],
       suggestedWeeklyRoutine: [
-        `Devote 6 hours to focused core concept practice (${keyGaps.split(',')[0] || 'Core principles'}).`,
-        'Devote 5 hours to hands-on project implementation with Git commits.',
-        'Devote 4 hours to code review, documentation, and technical interview questions.'
+        `Devote ${Math.round(weeklyHours * 0.4)} hours to focused core concept practice (${keyGaps.split(',')[0] || 'Core principles'}).`,
+        `Devote ${Math.round(weeklyHours * 0.35)} hours to hands-on project implementation with Git commits.`,
+        `Devote ${Math.max(2, Math.round(weeklyHours * 0.25))} hours to code review, documentation, and technical interview questions.`,
       ],
-      notice: 'Note: SkillPath AI operates in local offline intelligence mode. Connect an optional backend endpoint to enable live generative LLM responses.'
+      topMilestone: `Build and deploy a full-stack portfolio application demonstrating ${keyGaps.split(',')[0] || 'modern tech'}.`,
+      notice: 'Connect your free Google Gemini API key in Settings to activate real-time generative advice.',
     };
-  }
+  },
+
+  async generateCustomRoadmap(params) {
+    try {
+      const res = await aiApi.generateRoadmap(params);
+      if (res && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('[AIService] Backend AI roadmap request failed:', err.message);
+    }
+
+    return null;
+  },
+
+  async reviewATSResume(cvData, targetRole) {
+    try {
+      const res = await aiApi.reviewCV(cvData, targetRole);
+      if (res && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('[AIService] Backend AI resume review failed:', err.message);
+    }
+
+    return null;
+  },
+
+  async askCareerAssistant(question, context, targetCareer) {
+    try {
+      const res = await aiApi.askAssistant(question, context, targetCareer);
+      if (res && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('[AIService] Backend AI chat request failed:', err.message);
+    }
+
+    return null;
+  },
+
+  async configureKey(apiKey, provider = 'gemini', model = 'gemini-1.5-flash') {
+    return aiApi.configure(apiKey, provider, model);
+  },
 };

@@ -204,3 +204,17 @@ export const notificationsApi = {
   markAllRead: () => request('/notifications/read-all', { method: 'PATCH' }),
   delete: (id) => request(`/notifications/${id}`, { method: 'DELETE' }),
 };
+
+// 12. Google Gemini & Multi-Provider AI API
+export const aiApi = {
+  getStatus: () => request('/ai/status', { method: 'GET' }),
+  getGuidance: (profile) => request('/ai/guidance', { method: 'POST', body: JSON.stringify(profile) }),
+  generateRoadmap: (params) => request('/ai/roadmap', { method: 'POST', body: JSON.stringify(params) }),
+  reviewCV: (cvData, targetRole) =>
+    request('/ai/cv-review', { method: 'POST', body: JSON.stringify({ cvData, targetRole }) }),
+  askAssistant: (question, context, targetCareer) =>
+    request('/ai/chat', { method: 'POST', body: JSON.stringify({ question, context, targetCareer }) }),
+  configure: (apiKey, provider = 'gemini', model = 'gemini-1.5-flash') =>
+    request('/ai/config', { method: 'POST', body: JSON.stringify({ apiKey, provider, model }) }),
+};
+

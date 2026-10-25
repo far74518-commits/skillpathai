@@ -9,6 +9,10 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || 'skillpath_super_secure_jwt_secret_key_2026_student_planner_xyz',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
   cookieExpiresDays: parseInt(process.env.COOKIE_EXPIRES_DAYS, 10) || 7,
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+  },
   openai: {
     apiKey: process.env.OPENAI_API_KEY || '',
     model: process.env.OPENAI_MODEL || 'gpt-4o-mini'

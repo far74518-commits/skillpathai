@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useApp } from '../context/AppContext';
 import { StorageService } from '../services/storageService';
-import { userApi } from '../services/api';
+import { userApi, aiApi } from '../services/api';
 import { CAREERS } from '../data/careers';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import Button from '../components/common/Button';
@@ -43,7 +43,11 @@ import {
   Layers,
   MapPin,
   Briefcase,
-  LogOut
+  LogOut,
+  Zap,
+  RefreshCw,
+  FileCheck,
+  Bot
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -135,7 +139,19 @@ export default function SettingsPage() {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isDeleteAccountOpen, setIsDeleteAccountOpen] = useState(false);
 
-  // Check live persistent database connection status
+  // 6. AI Configuration State
+  const [aiStatus, setAiStatus] = useState(null);
+  const [aiForm, setAiForm] = useState({
+    apiKey: '',
+    provider: 'gemini',
+    model: 'gemini-1.5-flash',
+  });
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [isAiTesting, setIsAiTesting] = useState(false);
+  const [isAiSaving, setIsAiSaving] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+
+  // Check live persistent database connection status & AI status
   useEffect(() => {
     userApi.getDatabaseStatus()
       .then((json) => {
@@ -152,6 +168,21 @@ export default function SettingsPage() {
           message: 'Active local persistent JSON document store. Data persists across server restarts, logouts, and logins.'
         });
       });
+
+    aiApi.getStatus()
+      .then((res) => {
+        if (res && res.data) {
+          setAiStatus(res.data);
+          if (res.data.activeProvider) {
+            setAiForm((prev) => ({
+              ...prev,
+              provider: res.data.activeProvider === 'rule-engine' ? 'gemini' : res.data.activeProvider,
+              model: res.data.model || 'gemini-1.5-flash',
+            }));
+          }
+        }
+      })
+      .catch(() => {});
   }, []);
 
   // Preset Avatar Options
@@ -487,6 +518,68 @@ export default function SettingsPage() {
     });
   };
 
+  const handleSaveAiConfig = async (e) => {
+    if (e) e.preventDefault();
+    setIsAiSaving(true);
+    try {
+      const res = await aiApi.configure(aiForm.apiKey.trim(), aiForm.provider, aiForm.model);
+      if (res && res.data) {
+        setAiStatus(res.data);
+        addToast({
+          type: 'success',
+          title: 'AI Settings Updated! 🚀',
+          message: `Active engine: ${res.data.providerName}`
+        });
+      }
+    } catch (err) {
+      addToast({
+        type: 'error',
+        title: 'Update Failed',
+        message: err.message || 'Could not update AI settings.'
+      });
+    } finally {
+      setIsAiSaving(false);
+    }
+  };
+
+  const handleTestAiConnection = async () => {
+    setIsAiTesting(true);
+    setTestResult(null);
+    const start = Date.now();
+    try {
+      if (aiForm.apiKey) {
+        await aiApi.configure(aiForm.apiKey.trim(), aiForm.provider, aiForm.model);
+      }
+      const res = await aiApi.getGuidance({
+        targetRole: 'Full-Stack Developer',
+        weeklyHours: 15,
+        missingSkills: ['Cloud Architecture']
+      });
+      const latency = Date.now() - start;
+      setTestResult({
+        success: true,
+        message: `Successfully connected to ${res.data.source}! Response latency: ${latency}ms.`
+      });
+      addToast({
+        type: 'success',
+        title: 'Connection Active! ⚡',
+        message: `Response from ${res.data.source} received in ${latency}ms.`
+      });
+    } catch (err) {
+      setTestResult({
+        success: false,
+        message: err.message || 'Connection test failed.'
+      });
+      addToast({
+        type: 'error',
+        title: 'Connection Failed',
+        message: err.message || 'Could not reach AI provider.'
+      });
+    } finally {
+      setIsAiTesting(false);
+    }
+  };
+
   return (
     <div className="animate-fade">
       {/* Page Header */}
@@ -527,6 +620,17 @@ export default function SettingsPage() {
           >
             <User size={18} />
             <span>Profile Settings</span>
+          </button>
+
+          <button
+            className={`settings-nav-btn ${activeTab === 'ai' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ai')}
+            style={{
+              color: activeTab === 'ai' ? '#818cf8' : undefined
+            }}
+          >
+            <Sparkles size={18} color="#818cf8" />
+            <span>AI & Google Gemini</span>
           </button>
 
           <button
@@ -1784,6 +1888,325 @@ export default function SettingsPage() {
                 <Button variant="danger" icon={RotateCcw} onClick={() => setIsResetConfirmOpen(true)}>
                   Clear & Reset All Data
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================
+              TAB 7: AI & GOOGLE GEMINI SETTINGS
+              ======================================================== */}
+          {activeTab === 'ai' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                    Google Gemini & Generative AI Engine
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: 4 }}>
+                    Configure your Google Gemini API key to activate real-time personalized career roadmaps, ATS resume reviews, and mentor intelligence.
+                  </p>
+                </div>
+
+                <Button
+                  variant="primary"
+                  icon={Save}
+                  onClick={handleSaveAiConfig}
+                  loading={isAiSaving}
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                    fontWeight: 700
+                  }}
+                >
+                  Save AI Settings
+                </Button>
+              </div>
+
+              {/* Status Banner */}
+              <div
+                style={{
+                  background: aiStatus?.isLive
+                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.08) 100%)'
+                    : 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.08) 100%)',
+                  border: `1px solid ${aiStatus?.isLive ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.25)'}`,
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 'var(--radius-md)',
+                      background: aiStatus?.isLive
+                        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                        : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ffffff',
+                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)'
+                    }}
+                  >
+                    <Sparkles size={22} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontWeight: 700, fontSize: '1rem', color: '#ffffff' }}>
+                        {aiStatus?.providerName || 'SkillPath Intelligent Deterministic Engine'}
+                      </span>
+                      <span className={`badge ${aiStatus?.isLive ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '0.72rem' }}>
+                        {aiStatus?.isLive ? 'Live Generative LLM' : 'Offline Mode (Active)'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      Model: <code style={{ color: '#38bdf8' }}>{aiStatus?.model || 'Deterministic Semantic Rule Engine'}</code>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={isAiTesting ? RefreshCw : Zap}
+                  onClick={handleTestAiConnection}
+                  disabled={isAiTesting}
+                  style={{ fontSize: '0.82rem' }}
+                >
+                  {isAiTesting ? 'Testing Connection...' : 'Test Connection'}
+                </Button>
+              </div>
+
+              {testResult && (
+                <div
+                  style={{
+                    background: testResult.success ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
+                    border: `1px solid ${testResult.success ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)'}`,
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.85rem 1rem',
+                    fontSize: '0.85rem',
+                    color: testResult.success ? '#34d399' : '#fb7185',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  {testResult.success ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                  <span>{testResult.message}</span>
+                </div>
+              )}
+
+              {/* API Key Form Card */}
+              <div className="settings-card">
+                <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.4rem' }}>
+                  Provider & API Credentials
+                </h4>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+                  SkillPath AI works out of the box with zero external configuration using its built-in rule engine. Adding your free Google Gemini API key unlocks live generative responses.
+                </p>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+                  {/* Provider Select */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                      Primary AI Provider
+                    </label>
+                    <select
+                      value={aiForm.provider}
+                      onChange={(e) => setAiForm({ ...aiForm, provider: e.target.value })}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-app)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0.75rem 1rem',
+                        color: '#ffffff',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      <option value="gemini">Google Gemini AI (Recommended — Fast & Free Tier)</option>
+                      <option value="openai">OpenAI (GPT-4o-mini)</option>
+                    </select>
+                  </div>
+
+                  {/* Model Select */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.4rem' }}>
+                      Model Tier
+                    </label>
+                    <select
+                      value={aiForm.model}
+                      onChange={(e) => setAiForm({ ...aiForm, model: e.target.value })}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-app)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0.75rem 1rem',
+                        color: '#ffffff',
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      {aiForm.provider === 'gemini' ? (
+                        <>
+                          <option value="gemini-1.5-flash">gemini-1.5-flash (Ultra fast, lightweight, recommended)</option>
+                          <option value="gemini-2.0-flash">gemini-2.0-flash (Next-gen frontier reasoning)</option>
+                          <option value="gemini-1.5-pro">gemini-1.5-pro (Deep complex career analysis)</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="gpt-4o-mini">gpt-4o-mini (Cost-effective fast reasoning)</option>
+                          <option value="gpt-4o">gpt-4o (Full flagship model)</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+
+                {/* API Key Input with Visibility Toggle */}
+                <div style={{ marginBottom: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      {aiForm.provider === 'gemini' ? 'Google Gemini API Key' : 'OpenAI API Key'}
+                    </label>
+                    {aiForm.provider === 'gemini' && (
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: '0.78rem', color: '#38bdf8', textDecoration: 'none' }}
+                      >
+                        Get a free key from Google AI Studio ↗
+                      </a>
+                    )}
+                  </div>
+
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={aiForm.apiKey}
+                      onChange={(e) => setAiForm({ ...aiForm, apiKey: e.target.value })}
+                      placeholder={aiForm.provider === 'gemini' ? 'AIzaSy...' : 'sk-...'}
+                      style={{
+                        width: '100%',
+                        background: 'var(--bg-app)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 'var(--radius-md)',
+                        padding: '0.75rem 3rem 0.75rem 1rem',
+                        color: '#ffffff',
+                        fontSize: '0.9rem',
+                        fontFamily: 'monospace'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      style={{
+                        position: 'absolute',
+                        right: '0.85rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <p style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: '0.4rem' }}>
+                    Your API key is kept secure and never exposed to public clients. It is handled by the server proxy.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                  <Button
+                    variant="outline"
+                    icon={Zap}
+                    onClick={handleTestAiConnection}
+                    disabled={isAiTesting}
+                  >
+                    Test Connection
+                  </Button>
+                  <Button
+                    variant="primary"
+                    icon={Save}
+                    onClick={handleSaveAiConfig}
+                    loading={isAiSaving}
+                    style={{
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                      fontWeight: 700
+                    }}
+                  >
+                    Save Configuration
+                  </Button>
+                </div>
+              </div>
+
+              {/* Supported Features Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '1rem'
+                }}
+              >
+                <div
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1rem'
+                  }}
+                >
+                  <div style={{ color: '#818cf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Sparkles size={16} />
+                    <span>Smart Career Roadmaps</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Generates 3-stage actionable milestone roadmaps with estimated hours and checkpoints.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1rem'
+                  }}
+                >
+                  <div style={{ color: '#38bdf8', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <FileCheck size={16} />
+                    <span>ATS Resume Review</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Analyzes CV data against ATS scrapers, identifies missing keywords, and rewrites bullet points.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1rem'
+                  }}
+                >
+                  <div style={{ color: '#34d399', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Bot size={16} />
+                    <span>Career Mentor Chat</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
+                    Tailored advice for tech interviews at Systems Limited, Contour, 10Pearls, and global remote roles.
+                  </p>
+                </div>
               </div>
             </div>
           )}

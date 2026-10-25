@@ -5,6 +5,8 @@ import { CareerService } from '../services/careerService';
 import { INITIAL_ROADMAPS } from '../data/roadmaps';
 import TaskItem from '../components/roadmap/TaskItem';
 import AddTaskModal from '../components/roadmap/AddTaskModal';
+import AIRoadmapGeneratorModal from '../components/roadmap/AIRoadmapGeneratorModal';
+import { AIService } from '../services/aiService';
 import {
   Briefcase,
   TrendingUp,
@@ -462,8 +464,37 @@ export default function RoadmapPage() {
   const [isExpDropdownOpen, setIsExpDropdownOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAiRoadmapModalOpen, setIsAiRoadmapModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
+
+  const handleAdoptCustomRoadmap = (aiRoadmap) => {
+    // Automatically inject the generated AI milestones into current roadmap stages
+    if (aiRoadmap?.stages) {
+      aiRoadmap.stages.forEach((stage, sIdx) => {
+        const stageTargetId = sIdx === 0 ? 'stage_1' : sIdx === 1 ? 'stage_2' : 'stage_3';
+        (stage.milestones || []).forEach((m) => {
+          addCustomTask(selectedRole, stageTargetId, {
+            title: m.title,
+            description: m.description,
+            estimatedHours: m.estimatedHours || 12,
+            skills: m.skills || []
+          });
+        });
+      });
+    }
+
+    addToast({
+      type: 'success',
+      title: 'Custom AI Roadmap Adopted! 🚀',
+      message: `Curriculum from ${aiRoadmap.source || 'Google Gemini AI'} has been integrated into your active learning path.`
+    });
+
+    const targetElement = document.getElementById('roadmap-curriculum-section');
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const currentDegreeObj = DEGREES.find(d => d.id === selectedDegree) || DEGREES[0];
   const currentRoleObj = careerRoles.find(r => r.id === selectedRole) || careerRoles[0];
@@ -973,8 +1004,8 @@ export default function RoadmapPage() {
           </div>
         </div>
 
-        {/* Generate Button */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {/* Generate Buttons: Standard + Custom AI Gemini Track */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleGenerate}
@@ -984,7 +1015,7 @@ export default function RoadmapPage() {
               color: '#ffffff',
               border: 'none',
               borderRadius: 'var(--radius-lg)',
-              padding: '0.85rem 2.5rem',
+              padding: '0.85rem 2.25rem',
               fontSize: '1rem',
               fontWeight: 700,
               cursor: 'pointer',
@@ -997,6 +1028,29 @@ export default function RoadmapPage() {
           >
             <Sparkles size={18} />
             <span>{isGenerating ? 'Synthesizing Path...' : 'Generate My Roadmap'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsAiRoadmapModalOpen(true)}
+            style={{
+              background: 'rgba(56, 189, 248, 0.12)',
+              color: '#38bdf8',
+              border: '1px solid rgba(56, 189, 248, 0.45)',
+              borderRadius: 'var(--radius-lg)',
+              padding: '0.85rem 1.85rem',
+              fontSize: '0.95rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.55rem',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 12px rgba(56, 189, 248, 0.2)'
+            }}
+          >
+            <Zap size={18} />
+            <span>Custom AI Track Generator</span>
           </button>
         </div>
       </div>
@@ -1418,6 +1472,15 @@ export default function RoadmapPage() {
         onClose={() => setIsAddModalOpen(false)}
         onAddTask={(stageId, taskData) => addCustomTask(selectedRole, stageId, taskData)}
         stages={currentRoadmap?.stages || []}
+      />
+
+      {/* AI Smart Roadmap Generator Modal */}
+      <AIRoadmapGeneratorModal
+        isOpen={isAiRoadmapModalOpen}
+        onClose={() => setIsAiRoadmapModalOpen(false)}
+        initialTargetRole={currentRoleObj.label}
+        initialSkills={currentRoleObj.skills.slice(0, 4)}
+        onAdoptRoadmap={handleAdoptCustomRoadmap}
       />
     </div>
   );

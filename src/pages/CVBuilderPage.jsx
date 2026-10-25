@@ -4,6 +4,7 @@ import { SAMPLE_CV, EMPTY_CV } from '../data/sampleCV';
 import ModernTechTemplate from '../components/cv/ModernTechTemplate';
 import CleanExecutiveTemplate from '../components/cv/CleanExecutiveTemplate';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+import AIAtsReviewModal from '../components/cv/AIAtsReviewModal';
 import html2pdf from 'html2pdf.js';
 import {
   FileText,
@@ -32,6 +33,7 @@ export default function CVBuilderPage() {
   const [activeTab, setActiveTab] = useState('personal'); // personal | summary | education | experience | projects | skills | certs | languages
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [isClearAllConfirmOpen, setIsClearAllConfirmOpen] = useState(false);
+  const [isAiReviewOpen, setIsAiReviewOpen] = useState(false);
   const [isDownloadingPDF, setIsDownloadingPDF] = useState(false);
   const [previewZoom, setPreviewZoom] = useState(1); // 0.85 | 1 | 1.15
 
@@ -456,6 +458,22 @@ export default function CVBuilderPage() {
             style={{ color: 'var(--rose-400)', borderColor: 'rgba(244, 63, 94, 0.35)' }}
           >
             Clear to Blank
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            icon={Sparkles}
+            onClick={() => setIsAiReviewOpen(true)}
+            style={{
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.12) 100%)',
+              borderColor: 'rgba(99, 102, 241, 0.5)',
+              color: '#818cf8',
+              fontWeight: 700,
+              boxShadow: '0 2px 10px rgba(99, 102, 241, 0.2)'
+            }}
+          >
+            AI ATS Review
           </Button>
 
           <Button
@@ -1427,6 +1445,39 @@ export default function CVBuilderPage() {
         message="This will clear all fields so you can build your CV completely from scratch. Proceed?"
         confirmText="Clear All Fields"
         danger={true}
+      />
+
+      {/* AI ATS Resume Review & Optimizer Modal */}
+      <AIAtsReviewModal
+        isOpen={isAiReviewOpen}
+        onClose={() => setIsAiReviewOpen(false)}
+        cvData={cvData}
+        targetRole={cvData?.personalInfo?.headline || 'Software Engineer'}
+        onApplySummary={(improvedSummary) => {
+          handleSummaryChange(improvedSummary);
+          addToast({
+            type: 'success',
+            title: 'ATS Summary Applied! ✨',
+            message: 'High-impact professional summary updated in your CV.'
+          });
+        }}
+        onApplyBullet={(bullet) => {
+          const firstProj = cvData?.projects?.[0];
+          if (firstProj) {
+            handleAddProjBullet(firstProj.id);
+            addToast({
+              type: 'success',
+              title: 'Bullet Suggestion Added! 💼',
+              message: `Appended to "${firstProj.title}" project.`
+            });
+          } else {
+            addToast({
+              type: 'info',
+              title: 'Copied to Clipboard! 📋',
+              message: 'Add a project in Tab 5 to insert bullet points.'
+            });
+          }
+        }}
       />
     </div>
   );

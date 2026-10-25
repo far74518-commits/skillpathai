@@ -74,43 +74,48 @@ export default function RoadmapProgressWidget() {
             padding: '1rem',
             display: 'flex',
             alignItems: 'flex-start',
-            gap: '0.85rem'
+            gap: '0.85rem',
+            flexWrap: 'wrap'
           }}
         >
-          <button
-            onClick={() => toggleTaskCompleted(targetCareerId, nextTaskStageId, nextTask.id)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--text-dim)',
-              cursor: 'pointer',
-              marginTop: 2
-            }}
-            title="Mark completed"
-          >
-            <Circle size={20} />
-          </button>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary-400)', textTransform: 'uppercase' }}>
-              Next Recommended Milestone
-            </div>
-            <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', marginTop: 2 }}>
-              {nextTask.title}
-            </div>
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2 }}>
-              {nextTask.description}
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem', flexWrap: 'wrap' }}>
-              <span className="badge badge-gray">{nextTask.duration}</span>
-              {(nextTask.skills || []).slice(0, 2).map((sk, i) => (
-                <span key={i} className="badge badge-indigo">{sk}</span>
-              ))}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem', flex: 1, minWidth: 'min(100%, 220px)' }}>
+            <button
+              onClick={() => toggleTaskCompleted(targetCareerId, nextTaskStageId, nextTask.id)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-dim)',
+                cursor: 'pointer',
+                marginTop: 2,
+                flexShrink: 0
+              }}
+              title="Mark completed"
+            >
+              <Circle size={20} />
+            </button>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary-400)', textTransform: 'uppercase' }}>
+                Next Recommended Milestone
+              </div>
+              <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)', marginTop: 2, wordBreak: 'break-word' }}>
+                {nextTask.title}
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-word' }}>
+                {nextTask.description}
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.65rem', flexWrap: 'wrap' }}>
+                <span className="badge badge-gray">{nextTask.duration}</span>
+                {(nextTask.skills || []).slice(0, 2).map((sk, i) => (
+                  <span key={i} className="badge badge-indigo">{sk}</span>
+                ))}
+              </div>
             </div>
           </div>
           <Button
             size="sm"
             variant="outline"
             onClick={() => toggleTaskCompleted(targetCareerId, nextTaskStageId, nextTask.id)}
+            style={{ marginLeft: 'auto', alignSelf: 'flex-start' }}
           >
             Done
           </Button>

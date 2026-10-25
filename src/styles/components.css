@@ -165,6 +165,27 @@
   transform: translateY(-2px);
 }
 
+@media (max-width: 768px) {
+  .card {
+    padding: 1.15rem 1rem;
+    border-radius: var(--radius-md);
+  }
+  .card-header {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1rem 0.85rem;
+  }
+  .card-title {
+    font-size: 1.05rem;
+  }
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -185,6 +206,30 @@
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-top: 0.2rem;
+}
+
+/* Form Layout Grids */
+.form-grid-2,
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-grid-3,
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .form-grid-2,
+  .form-row-2,
+  .form-grid-3,
+  .form-row-3 {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* Forms & Inputs */

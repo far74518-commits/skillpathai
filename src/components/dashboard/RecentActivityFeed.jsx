@@ -49,37 +49,27 @@ export default function RecentActivityFeed() {
       <div className="card-header">
         <h3 className="card-title">Recent Activity</h3>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="activity-feed-list">
         {activities.map((act) => {
           const Icon = act.icon;
           return (
-            <div key={act.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
+            <div key={act.id} className="activity-feed-item">
               <div
+                className="activity-feed-icon"
                 style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 'var(--radius-md)',
                   background: act.bg,
-                  color: act.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
+                  color: act.color
                 }}
               >
                 <Icon size={16} />
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  {act.title}
+              <div className="activity-feed-content">
+                <div className="activity-feed-header">
+                  <span className="activity-feed-title">{act.title}</span>
+                  <span className="activity-feed-time">{act.time}</span>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                  {act.desc}
-                </div>
+                <div className="activity-feed-desc">{act.desc}</div>
               </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', whiteSpace: 'nowrap' }}>
-                {act.time}
-              </span>
             </div>
           );
         })}

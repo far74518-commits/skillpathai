@@ -51,7 +51,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <Link to="/assistant">
             <Button variant="outline" size="sm" icon={Sparkles}>
               Re-run Assessment

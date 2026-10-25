@@ -69,7 +69,7 @@ export default function JobModal({ isOpen, onClose, onSave, initialJob = null })
       maxWidth="560px"
     >
       <form onSubmit={handleSubmit}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Company Name *</label>
             <input
@@ -95,7 +95,7 @@ export default function JobModal({ isOpen, onClose, onSave, initialJob = null })
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Status</label>
             <select
@@ -122,7 +122,7 @@ export default function JobModal({ isOpen, onClose, onSave, initialJob = null })
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Location</label>
             <input
@@ -150,7 +150,7 @@ export default function JobModal({ isOpen, onClose, onSave, initialJob = null })
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }}>
+        <div className="form-grid-2">
           <div className="form-group">
             <label className="form-label">Job Posting URL</label>
             <input

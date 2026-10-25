@@ -1851,7 +1851,9 @@
   .footer-top {
     grid-template-columns: 1fr 1fr;
   }
-  .ai-matching-content-grid {
+  .ai-matching-content-grid,
+  .ai-insights-row,
+  .matched-jobs-cards {
     grid-template-columns: 1fr;
   }
 }
@@ -2700,18 +2702,21 @@
   margin-bottom: 1.5rem;
 }
 
-/* Grid Layout */
+/* Container & Grid Layout */
+.ai-matching-results-container,
 .ai-matching-content-grid {
-  display: grid;
-  grid-template-columns: 1.55fr 1fr;
-  gap: 1.5rem;
-  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
 }
 
-@media (max-width: 1024px) {
-  .ai-matching-content-grid {
-    grid-template-columns: 1fr;
-  }
+.ai-insights-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  align-items: stretch;
 }
 
 /* Top Spotlight Card */
@@ -2818,37 +2823,52 @@
   text-decoration: none;
 }
 
-/* Matched Jobs List */
+/* Matched Jobs Section & Cards */
+.matched-jobs-section,
+.matched-jobs-column {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 .matched-jobs-list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
 }
 
 .matched-jobs-list-header h3 {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .matched-jobs-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 500px), 1fr));
+  gap: 1.25rem;
+  width: 100%;
 }
 
 .recommendation-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: 1.35rem;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 250px;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
 
 .recommendation-card:hover {
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.16);
 }
 
 .rec-card-header {
@@ -3120,6 +3140,9 @@
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .btn-text-link {
@@ -3145,11 +3168,12 @@
   gap: 0.5rem;
 }
 
-/* Right Column Cards */
+/* AI Insights Cards (Balanced Row) */
 .ai-insights-column {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
   gap: 1.5rem;
+  width: 100%;
 }
 
 .high-impact-skills-card, .personalized-learning-plan-card {
@@ -3158,6 +3182,10 @@
   border-radius: var(--radius-xl);
   padding: 1.5rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .insights-card-header {
@@ -3353,23 +3381,34 @@
 .stage-checklist {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 
 .checklist-item {
   display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  font-size: 0.8rem;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.84rem;
   line-height: 1.4;
   color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
   cursor: pointer;
   user-select: none;
+  transition: all 0.2s ease;
+}
+
+.checklist-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--text-primary);
 }
 
 .checkbox-indicator {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 4px;
   border: 1px solid var(--border-subtle);
   background: var(--bg-surface);
@@ -3378,10 +3417,11 @@
   justify-content: center;
   color: var(--emerald-400);
   flex-shrink: 0;
-  margin-top: 1px;
 }
 
 .checklist-item.completed {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.25);
   color: var(--text-muted);
   text-decoration: line-through;
 }

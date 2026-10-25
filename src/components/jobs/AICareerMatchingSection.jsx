@@ -385,74 +385,232 @@ export default function AICareerMatchingSection({ onSelectJobDetail }) {
         </div>
       ) : (
         /* SECTION 5: RESULTS & MATCHING BREAKDOWN */
-        <div className="ai-matching-content-grid">
-          {/* LEFT 2-COLUMNS: MATCHED JOBS LIST */}
-          <div className="matched-jobs-column">
-            {/* Top Spotlight Vacancy Banner */}
-            {topMatch && (
-              <div className="top-spotlight-card">
-                <div className="spotlight-top-badge">
-                  <Zap size={14} />
-                  <span>Highest Compatibility Opportunity</span>
+        <div className="ai-matching-results-container">
+          {/* Top Spotlight Vacancy Banner (Full Width) */}
+          {topMatch && (
+            <div className="top-spotlight-card">
+              <div className="spotlight-top-badge">
+                <Zap size={14} />
+                <span>Highest Compatibility Opportunity</span>
+              </div>
+              <div className="spotlight-main">
+                <div>
+                  <h3 className="spotlight-title">{topMatch.title}</h3>
+                  <div className="spotlight-meta">
+                    <span className="spotlight-company">
+                      <Building2 size={14} />
+                      {topMatch.companyName || topMatch.company}
+                    </span>
+                    <span className="spotlight-location">
+                      <MapPin size={14} />
+                      {topMatch.locationCity} ({topMatch.workArrangement || 'Hybrid'})
+                    </span>
+                    {topMatch.isInternship && (
+                      <span className="badge badge-amber">Internship / Trainee</span>
+                    )}
+                  </div>
                 </div>
-                <div className="spotlight-main">
-                  <div>
-                    <h3 className="spotlight-title">{topMatch.title}</h3>
-                    <div className="spotlight-meta">
-                      <span className="spotlight-company">
-                        <Building2 size={14} />
-                        {topMatch.companyName || topMatch.company}
-                      </span>
-                      <span className="spotlight-location">
-                        <MapPin size={14} />
-                        {topMatch.locationCity} ({topMatch.workArrangement || 'Hybrid'})
-                      </span>
-                      {topMatch.isInternship && (
-                        <span className="badge badge-amber">Internship / Trainee</span>
-                      )}
+
+                <div className="spotlight-score-badge">
+                  <div className="score-number">{topMatch.match?.matchScore || 0}%</div>
+                  <div className="score-label">Match Score</div>
+                </div>
+              </div>
+
+              <p className="spotlight-explanation">
+                {topMatch.match?.relevanceExplanation}
+              </p>
+
+              <div className="spotlight-actions">
+                <a
+                  href={topMatch.applicationUrl || topMatch.canonicalJobUrl || topMatch.sourceUrl || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-sm spotlight-apply-btn"
+                >
+                  <span>Apply on Official Portal</span>
+                  <ArrowUpRight size={15} />
+                </a>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={isJobSaved(topMatch.id) ? BookmarkCheck : Bookmark}
+                  onClick={() => handleSaveToTracker(topMatch)}
+                  disabled={isJobSaved(topMatch.id)}
+                >
+                  {isJobSaved(topMatch.id) ? 'Saved in Tracker' : 'Save to Tracker'}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* AI Career Growth & Learning Action Plan Row (Balanced 2-Column Grid) */}
+          {((topMissingSkills && topMissingSkills.length > 0) || learningPlan) && (
+            <div className="ai-insights-row">
+              {/* CARD 1: HIGH-IMPACT SKILLS TO LEARN NEXT */}
+              {topMissingSkills && topMissingSkills.length > 0 && (
+                <div className="high-impact-skills-card">
+                  <div className="insights-card-header">
+                    <TrendingUp size={18} className="text-emerald" />
+                    <div>
+                      <h4>High-Impact Skills to Learn Next</h4>
+                      <p className="text-muted text-xs">
+                        Mastering these skills bridges qualification gaps across verified vacancies.
+                      </p>
                     </div>
                   </div>
 
-                  <div className="spotlight-score-badge">
-                    <div className="score-number">{topMatch.match?.matchScore || 0}%</div>
-                    <div className="score-label">Match Score</div>
+                  <div className="missing-skills-demand-list">
+                    {topMissingSkills.map((item) => (
+                      <div key={item.skill} className="missing-skill-item">
+                        <div className="missing-skill-top">
+                          <span className="missing-skill-name">{item.skill}</span>
+                          <span className="boost-badge">{item.estimatedScoreBoost} Match</span>
+                        </div>
+                        <p className="missing-skill-rec">{item.recommendation}</p>
+                        <button
+                          type="button"
+                          className="btn-add-skill"
+                          onClick={() => handleAddMissingSkill(item.skill)}
+                          disabled={addingSkillName === item.skill}
+                        >
+                          <PlusCircle size={12} />
+                          <span>
+                            {addingSkillName === item.skill
+                              ? 'Adding to Tracker...'
+                              : `Add ${item.skill} to My Skills`}
+                          </span>
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                <p className="spotlight-explanation">
-                  {topMatch.match?.relevanceExplanation}
-                </p>
+              {/* CARD 2: PERSONALIZED 3-STAGE LEARNING PLAN & PRACTICAL MILESTONE TASKS */}
+              {learningPlan && (
+                <div className="personalized-learning-plan-card">
+                  <div className="insights-card-header">
+                    <BookOpen size={18} className="text-cyan" />
+                    <div>
+                      <h4>Personalized Learning Plan & Tasks</h4>
+                      <span className="plan-target-role">
+                        Target: {learningPlan.targetRole} • {learningPlan.estimatedWeeksToQualify} Weeks
+                      </span>
+                    </div>
+                  </div>
 
-                <div className="spotlight-actions">
-                  <a
-                    href={topMatch.applicationUrl || topMatch.canonicalJobUrl || topMatch.sourceUrl || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary btn-sm spotlight-apply-btn"
-                  >
-                    <span>Apply on Official Portal</span>
-                    <ArrowUpRight size={15} />
-                  </a>
+                  <p className="plan-summary-text">{learningPlan.summary}</p>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    icon={isJobSaved(topMatch.id) ? BookmarkCheck : Bookmark}
-                    onClick={() => handleSaveToTracker(topMatch)}
-                    disabled={isJobSaved(topMatch.id)}
-                  >
-                    {isJobSaved(topMatch.id) ? 'Saved in Tracker' : 'Save to Tracker'}
-                  </Button>
+                  {/* AI Advisor Guidance Note */}
+                  {learningPlan.aiAdvisorSummary && (
+                    <div className="ai-advisor-guidance-box">
+                      <div className="ai-guidance-tag">
+                        <Sparkles size={13} />
+                        <span>Live AI Career Strategy</span>
+                      </div>
+                      <p>{learningPlan.aiAdvisorSummary}</p>
+                    </div>
+                  )}
+
+                  {/* Stage Tabs (Stage 1, Stage 2, Stage 3) */}
+                  <div className="learning-stage-tabs">
+                    {learningPlan.milestones?.map((milestone, idx) => (
+                      <button
+                        key={milestone.stage}
+                        className={`stage-tab-btn ${activeStageIndex === idx ? 'active' : ''}`}
+                        onClick={() => setActiveStageIndex(idx)}
+                      >
+                        Stage {milestone.stage}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active Stage Details & Interactive Tasks Checklist */}
+                  {learningPlan.milestones && learningPlan.milestones[activeStageIndex] && (
+                    <div className="active-stage-details animate-fade">
+                      <div className="stage-title-row">
+                        <h5>{learningPlan.milestones[activeStageIndex].title}</h5>
+                        <span className="stage-duration">
+                          <Clock size={12} />
+                          {learningPlan.milestones[activeStageIndex].duration}
+                        </span>
+                      </div>
+                      <p className="stage-desc">
+                        {learningPlan.milestones[activeStageIndex].description}
+                      </p>
+
+                      <div className="stage-checklist">
+                        <span className="checklist-heading">Practical Milestone Tasks:</span>
+                        {learningPlan.milestones[activeStageIndex].checklist?.map((task, tIdx) => {
+                          const checkKey = `stage_${activeStageIndex}_task_${tIdx}`;
+                          const isDone = Boolean(completedChecklistItems[checkKey]);
+
+                          return (
+                            <div
+                              key={tIdx}
+                              className={`checklist-item ${isDone ? 'completed' : ''}`}
+                              onClick={() => toggleChecklist(checkKey)}
+                            >
+                              <div className="checkbox-indicator">
+                                {isDone && <Check size={12} />}
+                              </div>
+                              <span className="checklist-text">{task}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommended Capstone Project */}
+                  {learningPlan.recommendedProject && (
+                    <div className="recommended-capstone-card">
+                      <div className="capstone-header">
+                        <Code2 size={16} />
+                        <h6>Recommended Portfolio Project</h6>
+                      </div>
+                      <p className="capstone-title">{learningPlan.recommendedProject.title}</p>
+                      <p className="capstone-desc">{learningPlan.recommendedProject.description}</p>
+                    </div>
+                  )}
+
+                  {/* Curated Free Resources */}
+                  {learningPlan.resources && learningPlan.resources.length > 0 && (
+                    <div className="curated-resources-block">
+                      <h6>Curated Free Learning Resources</h6>
+                      <div className="resource-links-list">
+                        {learningPlan.resources.map((res, i) => (
+                          <a
+                            key={i}
+                            href={res.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="resource-link-item"
+                          >
+                            <div>
+                              <span className="resource-title">{res.title}</span>
+                              <span className="resource-provider">{res.provider} • {res.type}</span>
+                            </div>
+                            <ExternalLink size={14} />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+          )}
 
-            {/* List of Matched Real Jobs */}
+          {/* 3. Recommended Vacancies Section (Full Width Grid) */}
+          <div className="matched-jobs-section">
             <div className="matched-jobs-list-header">
-              <h3>
-                Recommended Vacancies ({recommendations.length})
-              </h3>
-              <span className="text-muted">Sorted by compatibility score</span>
+              <div>
+                <h3>Recommended Vacancies ({recommendations.length})</h3>
+                <span className="text-muted">Ranked by verified compatibility score</span>
+              </div>
             </div>
 
             <div className="matched-jobs-cards">
@@ -465,155 +623,157 @@ export default function AICareerMatchingSection({ onSelectJobDetail }) {
 
                 return (
                   <div key={job.id} className="recommendation-card">
-                    <div className="rec-card-header">
-                      <div className="rec-card-title-group">
-                        <div className="rec-company-row">
-                          <span className="rec-company-name">
-                            <Building2 size={13} />
-                            {job.companyName || job.company}
-                          </span>
-                          <span className="rec-verification-tag">
-                            <ShieldCheck size={12} />
-                            Verified
-                          </span>
+                    <div>
+                      <div className="rec-card-header">
+                        <div className="rec-card-title-group">
+                          <div className="rec-company-row">
+                            <span className="rec-company-name">
+                              <Building2 size={13} />
+                              {job.companyName || job.company}
+                            </span>
+                            <span className="rec-verification-tag">
+                              <ShieldCheck size={12} />
+                              Verified
+                            </span>
+                          </div>
+                          <h4 className="rec-job-title">{job.title}</h4>
+                          <div className="rec-meta-row">
+                            <span>
+                              <MapPin size={12} />
+                              {job.locationCity} ({job.workArrangement || 'Hybrid'})
+                            </span>
+                            <span>
+                              <Briefcase size={12} />
+                              {job.employmentType || 'Full-time'}
+                            </span>
+                            {job.isInternship && (
+                              <span className="badge badge-amber badge-xs">Internship</span>
+                            )}
+                          </div>
                         </div>
-                        <h4 className="rec-job-title">{job.title}</h4>
-                        <div className="rec-meta-row">
-                          <span>
-                            <MapPin size={12} />
-                            {job.locationCity} ({job.workArrangement || 'Hybrid'})
-                          </span>
-                          <span>
-                            <Briefcase size={12} />
-                            {job.employmentType || 'Full-time'}
-                          </span>
-                          {job.isInternship && (
-                            <span className="badge badge-amber badge-xs">Internship</span>
-                          )}
+
+                        <div className={`rec-score-pill ${scoreBadgeClass}`}>
+                          <span className="pill-number">{score}%</span>
+                          <span className="pill-text">Match</span>
                         </div>
                       </div>
 
-                      <div className={`rec-score-pill ${scoreBadgeClass}`}>
-                        <span className="pill-number">{score}%</span>
-                        <span className="pill-text">Match</span>
+                      {/* Skills Summary Chips */}
+                      <div className="rec-skills-section">
+                        {match.matchingSkills && match.matchingSkills.length > 0 && (
+                          <div className="skills-match-block">
+                            <div className="skills-chip-label match">
+                              <CheckCircle2 size={12} />
+                              Matching Skills ({match.matchingSkills.length}):
+                            </div>
+                            <div className="skills-chip-list">
+                              {match.matchingSkills.map((sk) => (
+                                <span key={sk} className="skill-chip match">
+                                  {sk}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {match.missingSkills && match.missingSkills.length > 0 && (
+                          <div className="skills-missing-block">
+                            <div className="skills-chip-label missing">
+                              <AlertCircle size={12} />
+                              Missing Skills ({match.missingSkills.length}):
+                            </div>
+                            <div className="skills-chip-list">
+                              {match.missingSkills.slice(0, 4).map((sk) => (
+                                <span key={sk} className="skill-chip missing">
+                                  {sk}
+                                </span>
+                              ))}
+                              {match.missingSkills.length > 4 && (
+                                <span className="skill-chip-more">
+                                  +{match.missingSkills.length - 4} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Skills Summary Chips */}
-                    <div className="rec-skills-section">
-                      {match.matchingSkills && match.matchingSkills.length > 0 && (
-                        <div className="skills-match-block">
-                          <div className="skills-chip-label match">
-                            <CheckCircle2 size={12} />
-                            Matching Skills ({match.matchingSkills.length}):
+                      {/* Expandable Diagnostic Breakdown */}
+                      {isExpanded && (
+                        <div className="rec-card-breakdown animate-fade">
+                          <div className="breakdown-title">
+                            <Sparkles size={14} />
+                            <span>Explainable Score Breakdown</span>
                           </div>
-                          <div className="skills-chip-list">
-                            {match.matchingSkills.map((sk) => (
-                              <span key={sk} className="skill-chip match">
-                                {sk}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {match.missingSkills && match.missingSkills.length > 0 && (
-                        <div className="skills-missing-block">
-                          <div className="skills-chip-label missing">
-                            <AlertCircle size={12} />
-                            Missing Skills ({match.missingSkills.length}):
+                          <div className="breakdown-bars">
+                            <div className="breakdown-bar-item">
+                              <div className="bar-labels">
+                                <span>Technical Skills (50%)</span>
+                                <span>{match.scoreBreakdown?.skillsScore || 0}%</span>
+                              </div>
+                              <div className="bar-track">
+                                <div
+                                  className="bar-fill skills"
+                                  style={{ width: `${match.scoreBreakdown?.skillsScore || 0}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="breakdown-bar-item">
+                              <div className="bar-labels">
+                                <span>Role / Career Goal Alignment (20%)</span>
+                                <span>{match.scoreBreakdown?.roleScore || 0}%</span>
+                              </div>
+                              <div className="bar-track">
+                                <div
+                                  className="bar-fill role"
+                                  style={{ width: `${match.scoreBreakdown?.roleScore || 0}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="breakdown-bar-item">
+                              <div className="bar-labels">
+                                <span>Location & Work Environment (15%)</span>
+                                <span>{match.scoreBreakdown?.locationScore || 0}%</span>
+                              </div>
+                              <div className="bar-track">
+                                <div
+                                  className="bar-fill location"
+                                  style={{ width: `${match.scoreBreakdown?.locationScore || 0}%` }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="breakdown-bar-item">
+                              <div className="bar-labels">
+                                <span>Education & Experience Fit (15%)</span>
+                                <span>{match.scoreBreakdown?.experienceScore || 0}%</span>
+                              </div>
+                              <div className="bar-track">
+                                <div
+                                  className="bar-fill experience"
+                                  style={{ width: `${match.scoreBreakdown?.experienceScore || 0}%` }}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div className="skills-chip-list">
-                            {match.missingSkills.slice(0, 4).map((sk) => (
-                              <span key={sk} className="skill-chip missing">
-                                {sk}
-                              </span>
-                            ))}
-                            {match.missingSkills.length > 4 && (
-                              <span className="skill-chip-more">
-                                +{match.missingSkills.length - 4} more
-                              </span>
+
+                          {/* Actionable Explanation */}
+                          <div className="rec-explanation-box">
+                            <p>{match.relevanceExplanation}</p>
+                            {match.recommendedActions && match.recommendedActions.length > 0 && (
+                              <ul className="rec-actions-list">
+                                {match.recommendedActions.map((act, i) => (
+                                  <li key={i}>{act}</li>
+                                ))}
+                              </ul>
                             )}
                           </div>
                         </div>
                       )}
                     </div>
-
-                    {/* Expandable Diagnostic Breakdown */}
-                    {isExpanded && (
-                      <div className="rec-card-breakdown animate-fade">
-                        <div className="breakdown-title">
-                          <Sparkles size={14} />
-                          <span>Explainable Score Breakdown</span>
-                        </div>
-
-                        <div className="breakdown-bars">
-                          <div className="breakdown-bar-item">
-                            <div className="bar-labels">
-                              <span>Technical Skills (50%)</span>
-                              <span>{match.scoreBreakdown?.skillsScore || 0}%</span>
-                            </div>
-                            <div className="bar-track">
-                              <div
-                                className="bar-fill skills"
-                                style={{ width: `${match.scoreBreakdown?.skillsScore || 0}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="breakdown-bar-item">
-                            <div className="bar-labels">
-                              <span>Role / Career Goal Alignment (20%)</span>
-                              <span>{match.scoreBreakdown?.roleScore || 0}%</span>
-                            </div>
-                            <div className="bar-track">
-                              <div
-                                className="bar-fill role"
-                                style={{ width: `${match.scoreBreakdown?.roleScore || 0}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="breakdown-bar-item">
-                            <div className="bar-labels">
-                              <span>Location & Work Environment (15%)</span>
-                              <span>{match.scoreBreakdown?.locationScore || 0}%</span>
-                            </div>
-                            <div className="bar-track">
-                              <div
-                                className="bar-fill location"
-                                style={{ width: `${match.scoreBreakdown?.locationScore || 0}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="breakdown-bar-item">
-                            <div className="bar-labels">
-                              <span>Education & Experience Fit (15%)</span>
-                              <span>{match.scoreBreakdown?.experienceScore || 0}%</span>
-                            </div>
-                            <div className="bar-track">
-                              <div
-                                className="bar-fill experience"
-                                style={{ width: `${match.scoreBreakdown?.experienceScore || 0}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Actionable Explanation */}
-                        <div className="rec-explanation-box">
-                          <p>{match.relevanceExplanation}</p>
-                          {match.recommendedActions && match.recommendedActions.length > 0 && (
-                            <ul className="rec-actions-list">
-                              {match.recommendedActions.map((act, i) => (
-                                <li key={i}>{act}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      </div>
-                    )}
 
                     {/* Card Actions Footer */}
                     <div className="rec-card-footer">
@@ -661,163 +821,6 @@ export default function AICareerMatchingSection({ onSelectJobDetail }) {
                 );
               })}
             </div>
-          </div>
-
-          {/* RIGHT COLUMN: HIGH IMPACT SKILLS & PERSONALIZED LEARNING ROADMAP */}
-          <div className="ai-insights-column">
-            {/* CARD 1: HIGH-IMPACT SKILLS TO LEARN NEXT */}
-            {topMissingSkills && topMissingSkills.length > 0 && (
-              <div className="high-impact-skills-card">
-                <div className="insights-card-header">
-                  <TrendingUp size={18} className="text-emerald" />
-                  <div>
-                    <h4>High-Impact Skills to Learn Next</h4>
-                    <p className="text-muted text-xs">
-                      Mastering these skills bridges gaps across multiple active vacancies.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="missing-skills-demand-list">
-                  {topMissingSkills.map((item) => (
-                    <div key={item.skill} className="missing-skill-item">
-                      <div className="missing-skill-top">
-                        <span className="missing-skill-name">{item.skill}</span>
-                        <span className="boost-badge">{item.estimatedScoreBoost} Match</span>
-                      </div>
-                      <p className="missing-skill-rec">{item.recommendation}</p>
-                      <button
-                        type="button"
-                        className="btn-add-skill"
-                        onClick={() => handleAddMissingSkill(item.skill)}
-                        disabled={addingSkillName === item.skill}
-                      >
-                        <PlusCircle size={12} />
-                        <span>
-                          {addingSkillName === item.skill
-                            ? 'Adding to Tracker...'
-                            : `Add ${item.skill} to My Skills`}
-                        </span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CARD 2: PERSONALIZED 3-STAGE LEARNING PLAN */}
-            {learningPlan && (
-              <div className="personalized-learning-plan-card">
-                <div className="insights-card-header">
-                  <BookOpen size={18} className="text-cyan" />
-                  <div>
-                    <h4>Personalized Learning Plan</h4>
-                    <span className="plan-target-role">
-                      Target: {learningPlan.targetRole} • {learningPlan.estimatedWeeksToQualify} Weeks
-                    </span>
-                  </div>
-                </div>
-
-                <p className="plan-summary-text">{learningPlan.summary}</p>
-
-                {/* AI Advisor Guidance Note (If Live AI Engine Responded) */}
-                {learningPlan.aiAdvisorSummary && (
-                  <div className="ai-advisor-guidance-box">
-                    <div className="ai-guidance-tag">
-                      <Sparkles size={13} />
-                      <span>Live AI Career Strategy</span>
-                    </div>
-                    <p>{learningPlan.aiAdvisorSummary}</p>
-                  </div>
-                )}
-
-                {/* Stage Tabs (Stage 1, Stage 2, Stage 3) */}
-                <div className="learning-stage-tabs">
-                  {learningPlan.milestones?.map((milestone, idx) => (
-                    <button
-                      key={milestone.stage}
-                      className={`stage-tab-btn ${activeStageIndex === idx ? 'active' : ''}`}
-                      onClick={() => setActiveStageIndex(idx)}
-                    >
-                      Stage {milestone.stage}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Active Stage Details */}
-                {learningPlan.milestones && learningPlan.milestones[activeStageIndex] && (
-                  <div className="active-stage-details animate-fade">
-                    <div className="stage-title-row">
-                      <h5>{learningPlan.milestones[activeStageIndex].title}</h5>
-                      <span className="stage-duration">
-                        <Clock size={12} />
-                        {learningPlan.milestones[activeStageIndex].duration}
-                      </span>
-                    </div>
-                    <p className="stage-desc">
-                      {learningPlan.milestones[activeStageIndex].description}
-                    </p>
-
-                    <div className="stage-checklist">
-                      <span className="checklist-heading">Practical Milestones:</span>
-                      {learningPlan.milestones[activeStageIndex].checklist?.map((task, tIdx) => {
-                        const checkKey = `stage_${activeStageIndex}_task_${tIdx}`;
-                        const isDone = Boolean(completedChecklistItems[checkKey]);
-
-                        return (
-                          <div
-                            key={tIdx}
-                            className={`checklist-item ${isDone ? 'completed' : ''}`}
-                            onClick={() => toggleChecklist(checkKey)}
-                          >
-                            <div className="checkbox-indicator">
-                              {isDone && <Check size={12} />}
-                            </div>
-                            <span className="checklist-text">{task}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Recommended Capstone Project */}
-                {learningPlan.recommendedProject && (
-                  <div className="recommended-capstone-card">
-                    <div className="capstone-header">
-                      <Code2 size={16} />
-                      <h6>Recommended Portfolio Project</h6>
-                    </div>
-                    <p className="capstone-title">{learningPlan.recommendedProject.title}</p>
-                    <p className="capstone-desc">{learningPlan.recommendedProject.description}</p>
-                  </div>
-                )}
-
-                {/* Curated Free Resources */}
-                {learningPlan.resources && learningPlan.resources.length > 0 && (
-                  <div className="curated-resources-block">
-                    <h6>Curated Free Learning Resources</h6>
-                    <div className="resource-links-list">
-                      {learningPlan.resources.map((res, i) => (
-                        <a
-                          key={i}
-                          href={res.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="resource-link-item"
-                        >
-                          <div>
-                            <span className="resource-title">{res.title}</span>
-                            <span className="resource-provider">{res.provider} • {res.type}</span>
-                          </div>
-                          <ExternalLink size={14} />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}

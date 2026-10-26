@@ -12,15 +12,18 @@ export default function CareerAssistantPage() {
   const { targetCareerId, setTargetCareer, skills, addToast } = useApp();
 
   const [assessmentResults, setAssessmentResults] = useState(() => {
-    return CareerService.evaluateAssessment({
-      educationLevel: '',
-      degreeField: '',
-      existingSkills: [],
-      interests: [],
-      preferredWorkEnv: '',
-      careerGoal: '',
-      weeklyHours: 15
-    });
+    return CareerService.evaluateAssessment(
+      {
+        educationLevel: "Bachelor's Degree",
+        degreeField: 'Computer Science / Software Engineering',
+        existingSkills: [],
+        interests: ['Frontend & Web', 'UI/UX & Design'],
+        preferredWorkEnv: 'Remote Friendly',
+        careerGoal: 'High-growth software career',
+        weeklyHours: 15
+      },
+      skills
+    );
   });
 
   const [aiAdvice, setAiAdvice] = useState(null);

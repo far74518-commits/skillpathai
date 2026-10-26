@@ -100,7 +100,7 @@ export default function ProjectCard({ project }) {
                   >
                     {item.completed && <Check size={11} />}
                   </div>
-                  <span style={{ textDecoration: item.completed ? 'line-through' : 'none', opacity: item.completed ? 0.7 : 1 }}>
+                  <span style={{ textDecoration: 'none', color: item.completed ? 'var(--emerald-400)' : 'var(--text-primary)', fontWeight: item.completed ? 500 : 400 }}>
                     {item.text}
                   </span>
                 </div>

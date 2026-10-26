@@ -19,8 +19,8 @@ export const PORTFOLIO_PROJECTS = [
       'Organize modular JavaScript code without monolithic spaghetti functions'
     ],
     checklist: [
-      { id: 'c1', text: 'Design mobile and desktop wireframes', completed: true },
-      { id: 'c2', text: 'Set up CSS variables for color palettes and spacing', completed: true },
+      { id: 'c1', text: 'Design mobile and desktop wireframes', completed: false },
+      { id: 'c2', text: 'Set up CSS variables for color palettes and spacing', completed: false },
       { id: 'c3', text: 'Implement project filter by category', completed: false },
       { id: 'c4', text: 'Add client-side form validation and modal', completed: false },
       { id: 'c5', text: 'Deploy to GitHub Pages or Vercel and verify Lighthouse score', completed: false }

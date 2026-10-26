@@ -48,7 +48,7 @@ export const INITIAL_ROADMAPS = {
             skills: ['Git', 'GitHub'],
             duration: '6 hours',
             project: 'Initialize and push a project with clear README markdown',
-            completed: false,
+            completed: true,
             isCustom: false
           }
         ]
@@ -67,7 +67,7 @@ export const INITIAL_ROADMAPS = {
             skills: ['React.js', 'Component Architecture'],
             duration: '15 hours',
             project: 'Build an interactive product catalog with search & filter',
-            completed: false,
+            completed: true,
             isCustom: false
           },
           {
@@ -77,7 +77,7 @@ export const INITIAL_ROADMAPS = {
             skills: ['React Hooks', 'Custom Hooks'],
             duration: '16 hours',
             project: 'Build a custom useLocalStorage and useDebounce hook library',
-            completed: false,
+            completed: true,
             isCustom: false
           },
           {
@@ -87,7 +87,7 @@ export const INITIAL_ROADMAPS = {
             skills: ['React Router', 'SPA Navigation'],
             duration: '10 hours',
             project: 'Implement a multi-page student portal with route parameters',
-            completed: false,
+            completed: true,
             isCustom: false
           },
           {

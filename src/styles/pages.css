@@ -1044,8 +1044,8 @@
 }
 
 .task-item.completed .task-title-text {
-  text-decoration: line-through;
-  color: var(--text-muted);
+  text-decoration: none;
+  color: var(--emerald-400);
 }
 
 .task-meta-chips {
@@ -1725,7 +1725,7 @@
   background: rgba(148, 163, 184, 0.12);
   color: var(--text-dim);
   border: 1px solid rgba(148, 163, 184, 0.2);
-  text-decoration: line-through;
+  text-decoration: none;
 }
 
 @keyframes urgentPulse {
@@ -3659,10 +3659,10 @@
 }
 
 .checklist-item.completed {
-  background: rgba(16, 185, 129, 0.06);
-  border-color: rgba(16, 185, 129, 0.25);
-  color: var(--text-muted);
-  text-decoration: line-through;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--emerald-300);
+  text-decoration: none;
 }
 
 .checklist-item.completed .checkbox-indicator {

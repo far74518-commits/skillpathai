@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '../common/Button';
 import { Sparkles, Check, Plus, ArrowUpRight, Award, Zap } from 'lucide-react';
 import { CareerService } from '../../services/careerService';
+import { useApp } from '../../context/AppContext';
 
 // Domain-specific skills based on degree/background field
 const FIELD_SKILLS_MAP = {
@@ -94,10 +95,12 @@ export default function AssessmentForm({
     });
   }, [formData.degreeField]);
 
+  const { skills } = useApp();
+
   // Compute live match score & top match based on current skills
-  const liveResults = CareerService.evaluateAssessment(formData);
+  const liveResults = CareerService.evaluateAssessment(formData, skills);
   const liveTopMatch = liveResults && liveResults.length > 0 ? liveResults[0] : null;
-  const liveScore = liveTopMatch ? liveTopMatch.matchScore : 15;
+  const liveScore = liveTopMatch ? liveTopMatch.matchScore : 75;
 
   // Notify parent of real-time form state changes
   const updateFormData = (updater) => {

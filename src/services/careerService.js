@@ -1,5 +1,47 @@
 import { CAREERS } from '../data/careers';
 
+function normalizeSkillText(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[+]/g, 'plus')
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function isSkillMatch(skillA, skillB) {
+  const aRaw = typeof skillA === 'string' ? skillA : (skillA?.name || '');
+  const bRaw = typeof skillB === 'string' ? skillB : (skillB?.name || '');
+  const a = normalizeSkillText(aRaw);
+  const b = normalizeSkillText(bRaw);
+
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.includes(b) || b.includes(a)) return true;
+
+  // Key tech terms for smart fuzzy matching
+  const techKeywords = [
+    'html', 'html5', 'css', 'css3', 'flexbox', 'grid', 'javascript', 'js', 'es6',
+    'react', 'reactjs', 'node', 'nodejs', 'express', 'python', 'sql', 'postgres',
+    'postgresql', 'mongodb', 'git', 'github', 'rest', 'api', 'apis', 'typescript',
+    'docker', 'aws', 'cloud', 'linux', 'figma', 'responsive', 'redux', 'tailwind',
+    'fastapi', 'django', 'testing', 'pytest', 'algorithms', 'datastructures', 'design'
+  ];
+
+  const wordsA = a.split(' ');
+  const wordsB = b.split(' ');
+
+  for (const kw of techKeywords) {
+    if (wordsA.includes(kw) && wordsB.includes(kw)) {
+      return true;
+    }
+  }
+
+  // Multi-word substantial overlap
+  const common = wordsA.filter(w => wordsB.includes(w) && w.length >= 3 && !['and', 'the', 'for', 'with', 'web'].includes(w));
+  return common.length >= 2;
+}
+
 export const CareerService = {
   getAllCareers() {
     return CAREERS;
@@ -12,7 +54,7 @@ export const CareerService = {
   // Calculate career recommendation matches based on user assessment input
   evaluateAssessment(formData = {}, userSkills = []) {
     const {
-      educationLevel = '',
+      educationLevel = "Bachelor's Degree",
       degreeField = '',
       existingSkills = [],
       interests = [],
@@ -21,7 +63,12 @@ export const CareerService = {
       weeklyHours = 15
     } = formData;
 
-    const userSkillNames = (existingSkills || []).map(s =>
+    // Use selected skills, or fall back to user's saved/active skills
+    const rawSkillList = (existingSkills && existingSkills.length > 0)
+      ? existingSkills
+      : (userSkills && userSkills.length > 0 ? userSkills : []);
+
+    const userSkillNames = rawSkillList.map(s =>
       (typeof s === 'string' ? s.toLowerCase().trim() : (s.name || '').toLowerCase().trim())
     ).filter(Boolean);
 
@@ -32,8 +79,8 @@ export const CareerService = {
     const degreeLower = (degreeField || '').toLowerCase();
 
     const scoredCareers = CAREERS.map(career => {
-      // Dynamic baseline: starts low (15%) so every skill selected visibly boosts the score
-      let score = 15;
+      // Dynamic baseline
+      let score = 25;
       const matchReasons = [];
 
       // 1. Education Stage (+5 pts if chosen)
@@ -79,8 +126,7 @@ export const CareerService = {
       const missingSkills = [];
 
       career.requiredSkills.forEach(req => {
-        const reqLower = req.name.toLowerCase();
-        const found = userSkillNames.some(userSk => userSk && (reqLower.includes(userSk) || userSk.includes(reqLower)));
+        const found = rawSkillList.some(userSk => isSkillMatch(userSk, req));
         if (found) {
           matchedSkills.push(req);
         } else {
@@ -116,8 +162,8 @@ export const CareerService = {
       if (estimatedWeeksToReady < 4) estimatedWeeksToReady = 4;
       if (estimatedWeeksToReady > 52) estimatedWeeksToReady = 52;
 
-      // Dynamic percentage scale: 15% (unselected) to 98% (strong match)
-      const finalScore = Math.min(98, Math.max(15, Math.round(score)));
+      // Dynamic percentage scale: 35% to 98%
+      const finalScore = Math.min(98, Math.max(35, Math.round(score)));
 
       return {
         ...career,
@@ -138,7 +184,7 @@ export const CareerService = {
   // Calculate student career readiness score (0-100)
   calculateReadiness(targetCareerId, skills = [], roadmaps = {}) {
     const career = this.getCareerById(targetCareerId);
-    if (!career) return { overall: 65, skillsRatio: 60, roadmapRatio: 70, gapCount: 3 };
+    if (!career) return { overall: 76, skillsScore: 80, roadmapScore: 70, gapCount: 2 };
 
     // 1. Skill coverage score
     const required = career.requiredSkills || [];
@@ -147,11 +193,12 @@ export const CareerService = {
     let missingCount = 0;
 
     required.forEach(req => {
-      const found = skills.find(s => s.name.toLowerCase().includes(req.name.toLowerCase()) || req.name.toLowerCase().includes(s.name.toLowerCase()));
+      const found = skills.find(s => isSkillMatch(s, req));
       totalTargetPoints += req.level * 20; // 1-5 scale mapped to 100
       if (found) {
-        acquiredPoints += (found.currentLevel || 1) * 20;
-        if ((found.currentLevel || 1) < req.level) {
+        const currentLvl = Math.max(1, found.currentLevel || 3);
+        acquiredPoints += Math.min(req.level, currentLvl) * 20;
+        if (currentLvl < req.level) {
           missingCount++;
         }
       } else {
@@ -159,10 +206,10 @@ export const CareerService = {
       }
     });
 
-    const skillsScore = totalTargetPoints > 0 ? Math.round((acquiredPoints / totalTargetPoints) * 100) : 60;
+    const skillsScore = totalTargetPoints > 0 ? Math.round((acquiredPoints / totalTargetPoints) * 100) : 75;
 
     // 2. Roadmap completion ratio
-    let roadmapScore = 40;
+    let roadmapScore = 60;
     const roadmap = roadmaps[targetCareerId] || roadmaps['frontend-dev'];
     if (roadmap && roadmap.stages) {
       let totalTasks = 0;
@@ -179,7 +226,7 @@ export const CareerService = {
     }
 
     // Weighted Overall
-    const overall = Math.min(99, Math.max(25, Math.round(skillsScore * 0.55 + roadmapScore * 0.45)));
+    const overall = Math.min(99, Math.max(35, Math.round(skillsScore * 0.55 + roadmapScore * 0.45)));
 
     return {
       overall,

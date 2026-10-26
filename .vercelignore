@@ -1,0 +1,7 @@
+# Ignore backend server directory for Vercel static Vite deployment
+server
+server/**
+scripts
+.env*
+*.cmd
+render.yaml
